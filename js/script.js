@@ -1,8 +1,8 @@
-const SUPABASE_URL = "https://hwrdgavamumylqkscyeh.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_";
-const db = (typeof supabase !== "undefined" && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("jakshduahuhsdjhcxuus"))
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+// const SUPABASE_URL = "https://hwrdgavamumylqkscyeh.supabase.co";
+// const SUPABASE_ANON_KEY = "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_";
+// const db = (typeof supabase !== "undefined" && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("jakshduahuhsdjhcxuus"))
+//   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+//   : null;
 
 const EVENT_CONFIG = {
   title: "Acara Perpisahan & Wisuda Kelulusan",
@@ -14,11 +14,11 @@ const EVENT_CONFIG = {
   publicUrl: "https://renza7003-create.github.io/kelulusanweb/blast/index.html"
 };
 
-// const SUPABASE_CONFIG = {
-//   url: "https://hwrdgavamumylqkscyeh.supabase.co",
-//   anonKey: "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_",
-//   rsvpTable: "rsvp_kelulusan"
-// };
+const SUPABASE_CONFIG = {
+  url: "https://hwrdgavamumylqkscyeh.supabase.co",
+  anonKey: "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_",
+  rsvpTable: "rsvp_kelulusan"
+};
 
 let supabaseClient = null;
 let sessionGuests = [];
