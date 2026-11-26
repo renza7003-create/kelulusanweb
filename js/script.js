@@ -4,12 +4,14 @@ const EVENT_CONFIG = {
   dateLabel: "Jumat, 1 Januari 2027",
   timeLabel: "07.00 – 15.00 WIB",
   location: "Aula & Lapangan Utama, Jl. Raya Victor, Setu, Kota Tangerang Selatan",
-  panitiaWa: "6281234567890"
+  panitiaWa: "6281234567890",
+  // Isi dengan URL publik undangan Anda (kosongkan "" jika ingin otomatis sesuai browser)
+  publicUrl: "https://username-anda.github.io/nama-repo/blast/index.html"
 };
 
 const SUPABASE_CONFIG = {
-  url: "https://YOUR_PROJECT_ID.supabase.co",
-  anonKey: "YOUR_SUPABASE_ANON_KEY",
+  url: "https://eybmvdkkjsqdrlfikhpd.supabase.co",
+  anonKey: "sb_publishable_01-OZsqmr_FyYSeratUDqw_qg2W3Iix",
   rsvpTable: "rsvp_kelulusan"
 };
 
@@ -125,7 +127,7 @@ function initCoverAndMusic() {
 
 function applySvgPlaceholder(img, text) {
   img.onerror = null;
-  img.src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect width='100%25' height='100%25' fill='%2327354F'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FBBF24' font-family='sans-serif' font-size='20' font-weight='bold'>${encodeURIComponent(text)}</text></svg>`;
+  img.src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect width='100%25' height='100%25' fill='%23262019'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23F3D06B' font-family='sans-serif' font-size='20' font-weight='bold'>${encodeURIComponent(text)}</text></svg>`;
 }
 
 function initGalleryFallback() {
@@ -324,7 +326,7 @@ function renderAdminTable() {
             </button>
             <button type="button" class="btn btn-secondary btn-auto btn-sm" onclick="window.deleteGuestRow(${i})">
               Hapus
-            </button>
+            </button>   
           </div>
         </td>
       </tr>`;
@@ -340,14 +342,26 @@ window.sendWhatsAppBlast = function (eNama, eInstansi, eKategori, waNumber, btn)
   const nama = decodeURIComponent(eNama);
   const instansi = decodeURIComponent(eInstansi);
   const kategori = decodeURIComponent(eKategori);
-  const baseUrl = window.location.origin + window.location.pathname.replace("admin.html", "index.html");
+
+  const baseUrl = EVENT_CONFIG.publicUrl
+    ? EVENT_CONFIG.publicUrl
+    : window.location.origin + window.location.pathname.replace("admin.html", "index.html");
+
   const link = `${baseUrl}?to=${encodeURIComponent(nama)}&instansi=${encodeURIComponent(instansi)}&kategori=${encodeURIComponent(kategori)}`;
   const msg = `Yth. *${nama}* (${instansi})\nKami mengundang Anda pada *${EVENT_CONFIG.title}*.\n📅 ${EVENT_CONFIG.dateLabel}\n⏰ ${EVENT_CONFIG.timeLabel}\n📍 ${EVENT_CONFIG.location}\n\nBuka undangan personal Anda:\n${link}`;
 
-  window.open(waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+  window.open(
+    waNumber
+      ? `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
   if (btn) {
     btn.textContent = "✓ Terkirim";
-    btn.style.backgroundColor = "#38BDF8";
+    btn.style.background = "#A67C1E";
+    btn.style.color = "#FAF5EB";
   }
 };
 
