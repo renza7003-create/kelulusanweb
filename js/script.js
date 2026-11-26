@@ -4,7 +4,7 @@ const EVENT_CONFIG = {
   dateLabel: "Jumat, 1 Januari 2027",
   timeLabel: "07.00 \u2013 15.00 WIB",
   location: "Aula & Lapangan Utama, Jl. Raya Victor, Setu, Kota Tangerang Selatan",
-  panitiaWa: "6281234567890",
+  panitiaWa: "6282114589280",
   publicUrl: "https://renza7003-create.github.io/kelulusanweb/blast/index.html"
 };
 
