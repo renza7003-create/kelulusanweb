@@ -2,10 +2,9 @@ const EVENT_CONFIG = {
   title: "Acara Perpisahan & Wisuda Kelulusan",
   dateIso: "2027-01-01T07:00:00+07:00",
   dateLabel: "Jumat, 1 Januari 2027",
-  timeLabel: "07.00 – 15.00 WIB",
+  timeLabel: "07.00 \u2013 15.00 WIB",
   location: "Aula & Lapangan Utama, Jl. Raya Victor, Setu, Kota Tangerang Selatan",
   panitiaWa: "6281234567890",
-  // Isi dengan URL publik undangan Anda (kosongkan "" jika ingin otomatis sesuai browser)
   publicUrl: "https://renza7003-create.github.io/kelulusanweb/blast/index.html"
 };
 
@@ -194,7 +193,7 @@ function initCopyFeature() {
     const text = textEl.textContent.trim();
     try { await navigator.clipboard.writeText(text); } catch (_) {}
     if (toast) {
-      toast.textContent = `✓ Tersalin: ${text}`;
+      toast.textContent = `\u2713 Tersalin: ${text}`;
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 2500);
     }
@@ -227,7 +226,7 @@ function renderGuestbook(entries = sessionRsvp) {
     <div class="guestbook-item">
       <div class="guestbook-meta">
         <strong>${escapeHtml(item.nama)} <span class="muted-sm" style="display:inline;">(${escapeHtml(item.instansi)})</span></strong>
-        <span class="guestbook-badge">${escapeHtml(item.status)} • ${escapeHtml(item.jumlah)} orang</span>
+        <span class="guestbook-badge">${escapeHtml(item.status)} \u2022 ${escapeHtml(item.jumlah)} orang</span>
       </div>
       <p style="font-size:0.9rem;">${escapeHtml(item.pesan || "Selamat atas kelulusannya!")}</p>
     </div>
@@ -276,7 +275,7 @@ function initRsvpForm() {
 
     if (alertEl) {
       alertEl.className = "alert alert-success show";
-      alertEl.textContent = "✓ Terima kasih! Konfirmasi & ucapan Anda telah dikirim.";
+      alertEl.textContent = "\u2713 Terima kasih! Konfirmasi & ucapan Anda telah dikirim.";
     }
 
     const waText = `Halo Panitia Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel}), saya *${record.nama}* (${record.instansi}) konfirmasi: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
@@ -326,7 +325,7 @@ function renderAdminTable() {
             </button>
             <button type="button" class="btn btn-secondary btn-auto btn-sm" onclick="window.deleteGuestRow(${i})">
               Hapus
-            </button>   
+            </button>
           </div>
         </td>
       </tr>`;
@@ -348,7 +347,7 @@ window.sendWhatsAppBlast = function (eNama, eInstansi, eKategori, waNumber, btn)
     : window.location.origin + window.location.pathname.replace("admin.html", "index.html");
 
   const link = `${baseUrl}?to=${encodeURIComponent(nama)}&instansi=${encodeURIComponent(instansi)}&kategori=${encodeURIComponent(kategori)}`;
-  const msg = `Yth. *${nama}* (${instansi})\nKami mengundang Anda pada *${EVENT_CONFIG.title}*.\n📅 ${EVENT_CONFIG.dateLabel}\n⏰ ${EVENT_CONFIG.timeLabel}\n📍 ${EVENT_CONFIG.location}\n\nBuka undangan personal Anda:\n${link}`;
+  const msg = `Yth. *${nama}* (${instansi})\nKami mengundang Anda pada *${EVENT_CONFIG.title}*.\n\uD83D\uDCC5 ${EVENT_CONFIG.dateLabel}\n\u23F0 ${EVENT_CONFIG.timeLabel}\n\uD83D\uDCCD ${EVENT_CONFIG.location}\n\nBuka undangan personal Anda:\n${link}`;
 
   window.open(
     waNumber
@@ -359,7 +358,7 @@ window.sendWhatsAppBlast = function (eNama, eInstansi, eKategori, waNumber, btn)
   );
 
   if (btn) {
-    btn.textContent = "✓ Terkirim";
+    btn.textContent = "\u2713 Terkirim";
     btn.style.background = "#A67C1E";
     btn.style.color = "#FAF5EB";
   }
