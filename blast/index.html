@@ -11,4 +11,24 @@
     <audio id="bgMusic" loop preload="auto">
         <source src="../assets/kelulusan.mp3" type="audio/mpeg">
     </audio>
+
+    <section id="invitationCover" class="cover-overlay" aria-label="Sampul Undangan Perpisahan & Kelulusan">
+    <div class="cover-card">
+      <span class="badge-event cover-badge">Undangan Perpisahan & Wisuda Kelulusan</span>
+      <h1 class="cover-title">Langkah Baru, Kenangan Abadi</h1>
+      <p class="cover-subtitle">Acara Perpisahan & Kelulusan • Pukul 07.00 – 15.00 WIB</p>
+      <div class="cover-guest-box">
+        <span class="cover-guest-label">Kepada Yth. Tamu Undangan:</span>
+        <strong id="coverGuestName" class="cover-guest-name">Tamu Undangan</strong>
+        <span id="coverGuestInstansi" class="cover-guest-instansi">Keluarga Besar & Alumni</span>
+      </div>
+      <button type="button" id="openInvitationBtn" class="btn btn-primary cover-open-btn">
+        🎓 Buka Undangan
+      </button>
+    </div>
+  </section>
+
+  <button type="button" id="musicToggleBtn" class="floating-music-btn" aria-label="Putar atau jeda backsound kelulusan" title="Backsound Kelulusan">
+    🎵 <span id="musicStatusText">Backsound: Off</span>
+  </button>
 </body>
