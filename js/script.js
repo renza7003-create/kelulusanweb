@@ -1,9 +1,3 @@
-// const SUPABASE_URL = "https://hwrdgavamumylqkscyeh.supabase.co";
-// const SUPABASE_ANON_KEY = "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_";
-// const db = (typeof supabase !== "undefined" && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("jakshduahuhsdjhcxuus"))
-//   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-//   : null;
-
 const EVENT_CONFIG = {
   title: "Acara Perpisahan & Wisuda Kelulusan",
   dateIso: "2027-01-01T07:00:00+07:00",
@@ -15,8 +9,8 @@ const EVENT_CONFIG = {
 };
 
 const SUPABASE_CONFIG = {
-  url: "https://hwrdgavamumylqkscyeh.supabase.co",
-  anonKey: "sb_publishable_XNpEha2eDhgpVdMoXIZ04w_3xWwzsk_",
+  url: "https://eybmvdkkjsqdrlfikhpd.supabase.co",
+  anonKey: "sb_publishable_01-OZsqmr_FyYSeratUDqw_qg2W3Iix",
   rsvpTable: "rsvp_kelulusan"
 };
 
@@ -28,24 +22,44 @@ let synthTimer = null;
 let audioCtx = null;
 
 function initSupabaseClient() {
-  const ready =
-    typeof window.supabase !== "undefined" &&
-    !SUPABASE_CONFIG.url.includes("YOUR_PROJECT_ID") &&
-    !SUPABASE_CONFIG.anonKey.includes("YOUR_SUPABASE_ANON_KEY");
-  if (ready) supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+  try {
+    if (window.supabase && typeof window.supabase.createClient === "function") {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    }
+  } catch (err) {
+    console.error("Gagal init Supabase:", err);
+  }
   return supabaseClient;
 }
 
 async function saveRsvpToSupabase(record) {
   const client = supabaseClient || initSupabaseClient();
-  if (client) await client.from(SUPABASE_CONFIG.rsvpTable).insert([record]);
+  if (!client) {
+    return { ok: false, message: "SDK Supabase belum termuat." };
+  }
+  try {
+    const { error } = await client.from(SUPABASE_CONFIG.rsvpTable).insert([record]);
+    if (error) {
+      return { ok: false, message: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, message: err?.message || "Koneksi database gagal." };
+  }
 }
 
 async function fetchRsvpFromSupabase() {
   const client = supabaseClient || initSupabaseClient();
   if (!client) return null;
-  const { data, error } = await client.from(SUPABASE_CONFIG.rsvpTable).select("*").order("id", { ascending: false });
-  return !error && Array.isArray(data) ? data : null;
+  try {
+    const { data, error } = await client
+      .from(SUPABASE_CONFIG.rsvpTable)
+      .select("*")
+      .order("id", { ascending: false });
+    return !error && Array.isArray(data) ? data : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function playGraduationSynthLoop() {
@@ -108,24 +122,34 @@ function getGuestData() {
   };
 }
 
+function openCoverInvitation() {
+  const coverEl = document.getElementById("invitationCover");
+  const mainEl = document.getElementById("mainInvitation");
+  if (coverEl) {
+    coverEl.classList.add("is-opened");
+    coverEl.style.display = "none";
+  }
+  if (mainEl) {
+    mainEl.classList.remove("invitation-hidden");
+    mainEl.style.display = "block";
+  }
+  setMusicState(true);
+  initScrollAnimations();
+}
+
 function initCoverAndMusic() {
   const guest = getGuestData();
   const coverName = document.getElementById("coverGuestName");
   const coverInstansi = document.getElementById("coverGuestInstansi");
   const openBtn = document.getElementById("openInvitationBtn");
-  const coverEl = document.getElementById("invitationCover");
-  const mainEl = document.getElementById("mainInvitation");
   const toggleBtn = document.getElementById("musicToggleBtn");
 
   if (coverName) coverName.textContent = guest.nama;
   if (coverInstansi) coverInstansi.textContent = guest.instansi;
 
-  openBtn?.addEventListener("click", () => {
-    coverEl?.classList.add("is-opened");
-    mainEl?.classList.remove("invitation-hidden");
-    setMusicState(true);
-    initScrollAnimations();
-  });
+  if (openBtn) {
+    openBtn.onclick = openCoverInvitation;
+  }
 
   toggleBtn?.addEventListener("click", () => setMusicState(!isMusicPlaying));
 }
@@ -218,7 +242,11 @@ function initScrollAnimations() {
 }
 
 function escapeHtml(str) {
-  return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function renderGuestbook(entries = sessionRsvp) {
@@ -265,6 +293,9 @@ function initRsvpForm() {
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
     const record = {
       nama: iNama.value.trim(),
       instansi: iInstansi.value.trim(),
@@ -275,18 +306,33 @@ function initRsvpForm() {
       pesan: document.getElementById("rsvpPesan").value.trim()
     };
 
-    sessionRsvp.unshift(record);
-    renderGuestbook(sessionRsvp);
-    await saveRsvpToSupabase(record);
-
     if (alertEl) {
       alertEl.className = "alert alert-success show";
-      alertEl.textContent = "\u2713 Terima kasih! Konfirmasi & ucapan Anda telah dikirim.";
+      alertEl.textContent = "Menyimpan data ke database...";
+    }
+
+    const saveResult = await saveRsvpToSupabase(record);
+
+    if (saveResult.ok) {
+      sessionRsvp.unshift(record);
+      renderGuestbook(sessionRsvp);
+      if (alertEl) {
+        alertEl.className = "alert alert-success show";
+        alertEl.textContent = "\u2713 Tersimpan di database! Membuka WhatsApp panitia...";
+      }
+    } else if (alertEl) {
+      alertEl.className = "alert alert-error show";
+      alertEl.textContent = `Gagal simpan ke database (${saveResult.message}). Membuka WhatsApp panitia...`;
     }
 
     const waText = `Halo Panitia Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel}), saya *${record.nama}* (${record.instansi}) konfirmasi: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
-    window.open(`https://wa.me/${EVENT_CONFIG.panitiaWa}?text=${encodeURIComponent(waText)}`, "_blank", "noopener,noreferrer");
+    const waUrl = `https://wa.me/${EVENT_CONFIG.panitiaWa}?text=${encodeURIComponent(waText)}`;
     form.reset();
+    if (submitBtn) submitBtn.disabled = false;
+
+    setTimeout(() => {
+      window.location.href = waUrl;
+    }, 900);
   });
 }
 
