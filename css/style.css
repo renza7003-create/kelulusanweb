@@ -36,9 +36,9 @@ h1, h2, .cover-guest-name { font-family: var(--font-serif); font-weight: 700; le
 .ico-gold { color: var(--gold-bright); }
 .icon-center { display: flex; justify-content: center; margin-bottom: 6px; }
 
-/* Cover Gelap Keemasan (Border Rata 1px) */
+/* Cover Gelap Keemasan */
 .cover-overlay {
-  position: fixed; inset: 0; z-index: 900;
+  position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center; padding: 20px;
   background: radial-gradient(circle at center, #261E14 0%, #0E0C0A 75%);
   transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
@@ -46,12 +46,14 @@ h1, h2, .cover-guest-name { font-family: var(--font-serif); font-weight: 700; le
 .cover-overlay.is-opened { opacity: 0; transform: translateY(-14px); visibility: hidden; pointer-events: none; }
 
 .cover-card {
+  position: relative; z-index: 10000;
   width: 100%; max-width: 450px;
   background: linear-gradient(180deg, #211B14 0%, var(--bg-card) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius); padding: 28px 22px; text-align: center;
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.65);
 }
+#openInvitationBtn { position: relative; z-index: 10001; cursor: pointer; }
 .cover-title { font-size: 2rem; line-height: 1.15; color: var(--gold-bright); margin: 8px 0 6px; }
 .cover-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 18px; }
 .cover-guest-box {
@@ -72,7 +74,7 @@ h1, h2, .cover-guest-name { font-family: var(--font-serif); font-weight: 700; le
 }
 .floating-music-btn.is-playing { background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%); color: #120E09; }
 
-/* Layout & Kartu (Border Rata 1px) */
+/* Layout & Kartu */
 .container, .admin-container { max-width: 760px; margin: 0 auto; padding: 20px 16px 56px; }
 .admin-container { max-width: 1120px; }
 
