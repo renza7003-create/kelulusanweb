@@ -14,49 +14,63 @@ const SUPABASE_CONFIG = {
   rsvpTable: "rsvp_kelulusan"
 };
 
-let supabaseClient = null;
 let sessionGuests = [];
 let sessionRsvp = [];
 let isMusicPlaying = false;
 let synthTimer = null;
 let audioCtx = null;
 
-function initSupabaseClient() {
-  try {
-    if (window.supabase && typeof window.supabase.createClient === "function") {
-      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-    }
-  } catch (err) {
-    console.error("Gagal init Supabase:", err);
+window.bukaUndangan = function () {
+  const coverEl = document.getElementById("invitationCover");
+  const mainEl = document.getElementById("mainInvitation");
+  if (coverEl) {
+    coverEl.classList.add("is-opened");
+    coverEl.style.display = "none";
   }
-  return supabaseClient;
-}
+  if (mainEl) {
+    mainEl.classList.remove("invitation-hidden");
+    mainEl.style.display = "block";
+  }
+  setMusicState(true);
+  initScrollAnimations();
+};
 
 async function saveRsvpToSupabase(record) {
-  const client = supabaseClient || initSupabaseClient();
-  if (!client) {
-    return { ok: false, message: "SDK Supabase belum termuat." };
-  }
   try {
-    const { error } = await client.from(SUPABASE_CONFIG.rsvpTable).insert([record]);
-    if (error) {
-      return { ok: false, message: error.message };
+    const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.rsvpTable}`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_CONFIG.anonKey,
+        "Authorization": `Bearer ${SUPABASE_CONFIG.anonKey}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(record)
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      return { ok: false, message: `HTTP ${res.status}: ${errText}` };
     }
     return { ok: true };
   } catch (err) {
-    return { ok: false, message: err?.message || "Koneksi database gagal." };
+    return { ok: false, message: err?.message || "Gagal terhubung ke server." };
   }
 }
 
 async function fetchRsvpFromSupabase() {
-  const client = supabaseClient || initSupabaseClient();
-  if (!client) return null;
   try {
-    const { data, error } = await client
-      .from(SUPABASE_CONFIG.rsvpTable)
-      .select("*")
-      .order("id", { ascending: false });
-    return !error && Array.isArray(data) ? data : null;
+    const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.rsvpTable}?select=*&order=id.desc`;
+    const res = await fetch(endpoint, {
+      headers: {
+        "apikey": SUPABASE_CONFIG.anonKey,
+        "Authorization": `Bearer ${SUPABASE_CONFIG.anonKey}`
+      }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) ? data : null;
   } catch (_) {
     return null;
   }
@@ -122,34 +136,14 @@ function getGuestData() {
   };
 }
 
-function openCoverInvitation() {
-  const coverEl = document.getElementById("invitationCover");
-  const mainEl = document.getElementById("mainInvitation");
-  if (coverEl) {
-    coverEl.classList.add("is-opened");
-    coverEl.style.display = "none";
-  }
-  if (mainEl) {
-    mainEl.classList.remove("invitation-hidden");
-    mainEl.style.display = "block";
-  }
-  setMusicState(true);
-  initScrollAnimations();
-}
-
 function initCoverAndMusic() {
   const guest = getGuestData();
   const coverName = document.getElementById("coverGuestName");
   const coverInstansi = document.getElementById("coverGuestInstansi");
-  const openBtn = document.getElementById("openInvitationBtn");
   const toggleBtn = document.getElementById("musicToggleBtn");
 
   if (coverName) coverName.textContent = guest.nama;
   if (coverInstansi) coverInstansi.textContent = guest.instansi;
-
-  if (openBtn) {
-    openBtn.onclick = openCoverInvitation;
-  }
 
   toggleBtn?.addEventListener("click", () => setMusicState(!isMusicPlaying));
 }
@@ -320,19 +314,20 @@ function initRsvpForm() {
         alertEl.className = "alert alert-success show";
         alertEl.textContent = "\u2713 Tersimpan di database! Membuka WhatsApp panitia...";
       }
-    } else if (alertEl) {
-      alertEl.className = "alert alert-error show";
-      alertEl.textContent = `Gagal simpan ke database (${saveResult.message}). Membuka WhatsApp panitia...`;
+      const waText = `Halo Panitia Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel}), saya *${record.nama}* (${record.instansi}) konfirmasi: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
+      const waUrl = `https://wa.me/${EVENT_CONFIG.panitiaWa}?text=${encodeURIComponent(waText)}`;
+      form.reset();
+      if (submitBtn) submitBtn.disabled = false;
+      setTimeout(() => {
+        window.location.href = waUrl;
+      }, 900);
+    } else {
+      if (submitBtn) submitBtn.disabled = false;
+      if (alertEl) {
+        alertEl.className = "alert alert-error show";
+        alertEl.textContent = `Gagal simpan ke database: ${saveResult.message}`;
+      }
     }
-
-    const waText = `Halo Panitia Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel}), saya *${record.nama}* (${record.instansi}) konfirmasi: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
-    const waUrl = `https://wa.me/${EVENT_CONFIG.panitiaWa}?text=${encodeURIComponent(waText)}`;
-    form.reset();
-    if (submitBtn) submitBtn.disabled = false;
-
-    setTimeout(() => {
-      window.location.href = waUrl;
-    }, 900);
   });
 }
 
@@ -470,7 +465,6 @@ function initAdminPanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initSupabaseClient();
   initCoverAndMusic();
   initGalleryFallback();
   startCountdown();
