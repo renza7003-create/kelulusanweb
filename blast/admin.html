@@ -6,6 +6,7 @@
   <title>Panel Admin & WA Blast — Perpisahan & Kelulusan</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -36,4 +37,37 @@
         </div>
       </div>
     </div>
-    
+    <div class="card">
+      <h2 style="margin-bottom: 12px; color: var(--text-main); font-size: 1.3rem;">2. Daftar Tamu & Aksi WhatsApp Blast</h2>
+      <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.95rem;">
+        Klik tombol <strong>"Kirim WA"</strong> untuk membuka WhatsApp dengan pesan otomatis & tautan undangan personal.
+      </p>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Tamu</th>
+              <th>Instansi</th>
+              <th>Kategori</th>
+              <th>No. WhatsApp</th>
+              <th>Aksi Blast</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                Belum ada data tamu yang diunggah. Silakan unggah file CSV/Excel di atas.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; 2026 Perpisahan & Wisuda Kelulusan • Pukul 07.00 – 15.00 WIB. All Rights Reserved.</p>
+  </footer>
+  <script src="../js/script.js"></script>
+</body>
+</html>
