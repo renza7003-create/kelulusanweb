@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin & WA Blast — Perpisahan & Kelulusan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="admin-container">
+    <header class="hero-header" style="padding: 30px 20px;">
+      <span class="badge-event">Panel Panitia Perpisahan & Kelulusan</span>
+      <h1>Panel WhatsApp Blast Undangan</h1>
+      <p class="tagline">Acara Perpisahan & Wisuda Kelulusan • Pukul 07.00 – 15.00 WIB</p>
+    </header>
+    <div id="adminAlert" class="alert"></div>
+    <div class="card">
+      <h2 style="margin-bottom: 16px; color: var(--text-main); font-size: 1.3rem;">1. Unggah Data Tamu (CSV / Excel)</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
+        Unggah file <strong>.csv</strong> atau <strong>.xlsx</strong> dengan header kolom: <code>nama_tamu</code>, <code>instansi</code>, <code>kategori</code>, dan <code>nomor_wa</code>.
+      </p>
+      <div class="upload-zone" id="uploadZone">
+        <div class="icon">📂</div>
+        <h3 style="color: var(--primary-blue); margin-bottom: 8px;">Klik atau Seret File CSV / Excel di Sini</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Mendukung format .csv, .xlsx, dan .xls</p>
+        <input type="file" id="excelUpload" accept=".csv, .xlsx, .xls">
+      </div>
+      <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <button type="button" id="downloadTemplateBtn" class="btn btn-secondary" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">
+          📥 Unduh Template CSV Tamu
+        </button>
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+          Total Tamu Dimuat: <strong id="totalTamu" style="color: var(--primary-blue);">0</strong> orang
+        </div>
+      </div>
+    </div>
+    
