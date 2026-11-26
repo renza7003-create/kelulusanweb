@@ -4,44 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin & WA Blast — Perpisahan & Kelulusan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="admin-container">
-    <header class="hero-header" style="padding: 30px 20px;">
-      <span class="badge-event">Panel Panitia Perpisahan & Kelulusan</span>
+    <header class="hero-header">
+      <span class="badge-event">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 4.5-9 4.5-9-4.5L12 3zm-5 9.2v4.3c0 1.7 2.2 3.5 5 3.5s5-1.8 5-3.5v-4.3l-5 2.5-5-2.5z"/></svg>
+        Panel Panitia Perpisahan & Kelulusan
+      </span>
       <h1>Panel WhatsApp Blast Undangan</h1>
-      <p class="tagline">Acara Perpisahan & Wisuda Kelulusan • Pukul 07.00 – 15.00 WIB</p>
+      <p class="tagline">Jumat, 1 Januari 2027 • Pukul 07.00 – 15.00 WIB</p>
     </header>
+
     <div id="adminAlert" class="alert"></div>
-    <div class="card">
-      <h2 style="margin-bottom: 16px; color: var(--text-main); font-size: 1.3rem;">1. Unggah Data Tamu (CSV / Excel)</h2>
-      <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
-        Unggah file <strong>.csv</strong> atau <strong>.xlsx</strong> dengan header kolom: <code>nama_tamu</code>, <code>instansi</code>, <code>kategori</code>, dan <code>nomor_wa</code>.
+
+    <section class="card">
+      <h2 class="section-title">
+        <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>
+        1. Unggah Data Tamu (CSV / Excel)
+      </h2>
+      <p class="section-desc">
+        Format kolom wajib: <code>nama_tamu</code>, <code>instansi</code>, <code>kategori</code>, dan <code>nomor_wa</code>.
       </p>
       <div class="upload-zone" id="uploadZone">
-        <div class="icon">📂</div>
-        <h3 style="color: var(--primary-blue); margin-bottom: 8px;">Klik atau Seret File CSV / Excel di Sini</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Mendukung format .csv, .xlsx, dan .xls</p>
+        <div class="upload-icon-wrap">
+          <svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm9 4v5m-2.5-2.5L12 16l2.5-2.5"/></svg>
+        </div>
+        <h3>Klik atau Seret File CSV / Excel di Sini</h3>
+        <p class="muted-sm">Mendukung format .csv, .xlsx, dan .xls</p>
         <input type="file" id="excelUpload" accept=".csv, .xlsx, .xls">
       </div>
-      <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <button type="button" id="downloadTemplateBtn" class="btn btn-secondary" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">
-          📥 Unduh Template CSV Tamu
+      <div class="action-bar">
+        <button type="button" id="downloadTemplateBtn" class="btn btn-secondary btn-auto">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          Unduh Template CSV
         </button>
-        <div style="font-size: 0.9rem; color: var(--text-muted);">
-          Total Tamu Dimuat: <strong id="totalTamu" style="color: var(--primary-blue);">0</strong> orang
-        </div>
+        <span class="muted-sm">Total Tamu Dimuat: <strong id="totalTamu" class="text-gold">0</strong> orang</span>
       </div>
-    </div>
-    <div class="card">
-      <h2 style="margin-bottom: 12px; color: var(--text-main); font-size: 1.3rem;">2. Daftar Tamu & Aksi WhatsApp Blast</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.95rem;">
-        Klik tombol <strong>"Kirim WA"</strong> untuk membuka WhatsApp dengan pesan otomatis & tautan undangan personal.
-      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">
+        <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm14 10v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        2. Daftar Tamu & Aksi WhatsApp Blast
+      </h2>
+      <p class="section-desc">Klik <strong>"Kirim WA"</strong> untuk mengirim pesan otomatis beserta tautan undangan personal.</p>
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -56,17 +67,16 @@
           </thead>
           <tbody id="adminTableBody">
             <tr>
-              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                Belum ada data tamu yang diunggah. Silakan unggah file CSV/Excel di atas.
-              </td>
+              <td colspan="6" class="empty-row">Belum ada data tamu yang diunggah.</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   </div>
+
   <footer>
-    <p>&copy; 2026 Perpisahan & Wisuda Kelulusan • Pukul 07.00 – 15.00 WIB. All Rights Reserved.</p>
+    <p>&copy; 2027 Perpisahan & Wisuda Kelulusan • 07.00 – 15.00 WIB</p>
   </footer>
   <script src="../js/script.js"></script>
 </body>

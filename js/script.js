@@ -1,15 +1,12 @@
 const EVENT_CONFIG = {
   title: "Acara Perpisahan & Wisuda Kelulusan",
   dateIso: "2027-01-01T07:00:00+07:00",
-  endIso: "2027-01-01T15:00:00+07:00",
   dateLabel: "Jumat, 1 Januari 2027",
   timeLabel: "07.00 – 15.00 WIB",
   location: "Aula & Lapangan Utama, Jl. Raya Victor, Setu, Kota Tangerang Selatan",
-  panitiaWa: "6281234567890",
-  rekeningInfo: "1234567890 a.n. Panitia Kelulusan (BCA)"
+  panitiaWa: "6281234567890"
 };
 
-// Konfigurasi Supabase (Ganti dengan URL & Anon Key project Supabase milikmu)
 const SUPABASE_CONFIG = {
   url: "https://YOUR_PROJECT_ID.supabase.co",
   anonKey: "YOUR_SUPABASE_ANON_KEY",
@@ -24,53 +21,32 @@ let isMusicPlaying = false;
 let synthTimer = null;
 let audioCtx = null;
 
-// --- 1. INISIALISASI SUPABASE ---
+// --- 1. SUPABASE ---
 function initSupabaseClient() {
-  const isConfigured =
+  const ready =
     typeof window.supabase !== "undefined" &&
-    SUPABASE_CONFIG.url &&
     !SUPABASE_CONFIG.url.includes("YOUR_PROJECT_ID") &&
-    SUPABASE_CONFIG.anonKey &&
     !SUPABASE_CONFIG.anonKey.includes("YOUR_SUPABASE_ANON_KEY");
-
-  if (!isConfigured) return null;
-  supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+  if (ready) {
+    supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+  }
   return supabaseClient;
 }
 
 async function saveRsvpToSupabase(record) {
   const client = supabaseClient || initSupabaseClient();
-  if (!client) return { ok: false, reason: "not_configured" };
-
-  const { data, error } = await client
-    .from(SUPABASE_CONFIG.rsvpTable)
-    .insert([record])
-    .select();
-
-  if (error) {
-    console.error("Supabase Insert Error:", error.message);
-    return { ok: false, reason: error.message };
-  }
-  return { ok: true, data };
+  if (!client) return;
+  await client.from(SUPABASE_CONFIG.rsvpTable).insert([record]);
 }
 
 async function fetchRsvpFromSupabase() {
   const client = supabaseClient || initSupabaseClient();
   if (!client) return null;
-
-  const { data, error } = await client
-    .from(SUPABASE_CONFIG.rsvpTable)
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (error || !Array.isArray(data)) {
-    console.error("Supabase Fetch Error:", error?.message);
-    return null;
-  }
-  return data;
+  const { data, error } = await client.from(SUPABASE_CONFIG.rsvpTable).select("*").order("id", { ascending: false });
+  return !error && Array.isArray(data) ? data : null;
 }
 
-// --- 2. KONTROL AUDIO BACKSOUND ---
+// --- 2. BACKSOUND & FLOATING AUDIO ---
 function playGraduationSynthLoop() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
@@ -79,21 +55,19 @@ function playGraduationSynthLoop() {
 
   const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25];
   let step = 0;
-
   clearInterval(synthTimer);
   synthTimer = setInterval(() => {
     if (!isMusicPlaying) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = "sine";
-    osc.frequency.value = notes[step % notes.length];
+    osc.frequency.value = notes[step++ % notes.length];
     gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0008, audioCtx.currentTime + 0.45);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + 0.46);
-    step += 1;
   }, 480);
 }
 
@@ -104,13 +78,8 @@ function setMusicState(play) {
   isMusicPlaying = play;
 
   if (play) {
-    if (audioEl) {
-      audioEl.play().catch(() => {
-        playGraduationSynthLoop();
-      });
-    } else {
-      playGraduationSynthLoop();
-    }
+    if (audioEl) audioEl.play().catch(playGraduationSynthLoop);
+    else playGraduationSynthLoop();
     if (btnEl) btnEl.classList.add("is-playing");
     if (labelEl) labelEl.textContent = "Backsound: On";
   } else {
@@ -121,22 +90,18 @@ function setMusicState(play) {
   }
 }
 
-// --- 3. DATA TAMU URL & COVER UNDANGAN ---
-function getGuestFromUrlAndStorage() {
+// --- 3. DATA TAMU & COVER ---
+function getGuestData() {
   const params = new URLSearchParams(window.location.search);
   const rawName = params.get("to") || params.get("nama") || "";
   const rawInstansi = params.get("instansi") || "";
   const rawKategori = params.get("kategori") || "Undangan";
 
-  let storedGuests = [];
-  try {
-    storedGuests = JSON.parse(localStorage.getItem(GUEST_CSV_STORAGE_KEY) || "[]");
-  } catch (_) {
-    storedGuests = [];
-  }
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem(GUEST_CSV_STORAGE_KEY) || "[]"); } catch (_) {}
 
   const matched = rawName
-    ? storedGuests.find((g) => String(g.nama_tamu || "").trim().toLowerCase() === rawName.trim().toLowerCase())
+    ? stored.find((g) => String(g.nama_tamu || "").trim().toLowerCase() === rawName.trim().toLowerCase())
     : null;
 
   return {
@@ -147,16 +112,16 @@ function getGuestFromUrlAndStorage() {
 }
 
 function initCoverAndMusic() {
-  const guest = getGuestFromUrlAndStorage();
-  const coverNameEl = document.getElementById("coverGuestName");
-  const coverInstansiEl = document.getElementById("coverGuestInstansi");
+  const guest = getGuestData();
+  const coverName = document.getElementById("coverGuestName");
+  const coverInstansi = document.getElementById("coverGuestInstansi");
   const openBtn = document.getElementById("openInvitationBtn");
   const coverEl = document.getElementById("invitationCover");
   const mainEl = document.getElementById("mainInvitation");
   const toggleBtn = document.getElementById("musicToggleBtn");
 
-  if (coverNameEl) coverNameEl.textContent = guest.nama;
-  if (coverInstansiEl) coverInstansiEl.textContent = guest.instansi;
+  if (coverName) coverName.textContent = guest.nama;
+  if (coverInstansi) coverInstansi.textContent = guest.instansi;
 
   if (openBtn) {
     openBtn.addEventListener("click", () => {
@@ -168,185 +133,114 @@ function initCoverAndMusic() {
   }
 
   if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      setMusicState(!isMusicPlaying);
-    });
+    toggleBtn.addEventListener("click", () => setMusicState(!isMusicPlaying));
   }
 }
 
-// --- 4. GALERI, COUNTDOWN, KALENDER & CLIPBOARD ---
+// --- 4. GALERI (2 FOTO), COUNTDOWN, KALENDER & SALIN ---
+function applySvgPlaceholder(img, text) {
+  img.onerror = null;
+  img.src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect width='100%25' height='100%25' fill='%23111827'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23D4AF37' font-family='sans-serif' font-size='20' font-weight='bold'>${encodeURIComponent(text)}</text></svg>`;
+}
+
 function initGalleryFallback() {
-  const captions = [
-    "Wisuda & Kelulusan",
-    "Sahabat Seangkatan",
-    "Bersama Guru",
-    "Perayaan Kelulusan"
-  ];
-  const imgs = document.querySelectorAll("#graduationGallery img");
-  imgs.forEach((img, idx) => {
-    img.addEventListener("error", () => {
-      const text = encodeURIComponent(captions[idx] || "Momen Kelulusan");
-      img.src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect width='100%25' height='100%25' fill='%23E0F2FE'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%230284C7' font-family='sans-serif' font-size='20' font-weight='bold'>${text}</text></svg>`;
-    });
+  const labels = ["Prosesi Wisuda", "Kebersamaan Angkatan"];
+  document.querySelectorAll("#graduationGallery img").forEach((img, idx) => {
+    const label = labels[idx] || "Momen Kelulusan";
+    img.onerror = () => applySvgPlaceholder(img, label);
+    if (img.complete && img.naturalWidth === 0) applySvgPlaceholder(img, label);
   });
 }
 
 function startCountdown() {
-  const targetTime = new Date(EVENT_CONFIG.dateIso).getTime();
-  const daysEl = document.getElementById("days");
-  const hoursEl = document.getElementById("hours");
-  const minutesEl = document.getElementById("minutes");
-  const secondsEl = document.getElementById("seconds");
-  if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+  const target = new Date(EVENT_CONFIG.dateIso).getTime();
+  const ids = ["days", "hours", "minutes", "seconds"].map((id) => document.getElementById(id));
+  if (ids.some((el) => !el)) return;
 
-  function updateTimer() {
-    const now = Date.now();
-    const diff = targetTime - now;
-    if (diff <= 0) {
-      daysEl.textContent = "00";
-      hoursEl.textContent = "00";
-      minutesEl.textContent = "00";
-      secondsEl.textContent = "00";
-      return;
-    }
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const m = Math.floor((diff / (1000 * 60)) % 60);
-    const s = Math.floor((diff / 1000) % 60);
+  const tick = () => {
+    const diff = Math.max(0, target - Date.now());
+    const values = [
+      Math.floor(diff / 86400000),
+      Math.floor((diff / 3600000) % 24),
+      Math.floor((diff / 60000) % 60),
+      Math.floor((diff / 1000) % 60)
+    ];
+    ids.forEach((el, i) => (el.textContent = String(values[i]).padStart(2, "0")));
+  };
 
-    daysEl.textContent = String(d).padStart(2, "0");
-    hoursEl.textContent = String(h).padStart(2, "0");
-    minutesEl.textContent = String(m).padStart(2, "0");
-    secondsEl.textContent = String(s).padStart(2, "0");
-  }
-
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  tick();
+  setInterval(tick, 1000);
 }
 
 function initCalendarActions() {
   const gcalLink = document.getElementById("googleCalendarLink");
   const icsBtn = document.getElementById("downloadIcsBtn");
-
-  // Format UTC untuk 1 Januari 2027, 07:00 - 15:00 WIB (UTC+7 -> 00:00Z - 08:00Z)
-  const startCompact = "20270101T000000Z";
-  const endCompact = "20270101T080000Z";
+  const startUtc = "20270101T000000Z";
+  const endUtc = "20270101T080000Z";
 
   if (gcalLink) {
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(EVENT_CONFIG.title)}&dates=${startCompact}/${endCompact}&details=${encodeURIComponent("Acara Perpisahan & Kelulusan pukul 07.00 - 15.00 WIB")}&location=${encodeURIComponent(EVENT_CONFIG.location)}`;
-    gcalLink.href = url;
+    gcalLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(EVENT_CONFIG.title)}&dates=${startUtc}/${endUtc}&details=${encodeURIComponent(EVENT_CONFIG.timeLabel)}&location=${encodeURIComponent(EVENT_CONFIG.location)}`;
   }
 
   if (icsBtn) {
     icsBtn.addEventListener("click", () => {
-      const icsContent = [
+      const ics = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//Undangan Kelulusan//ID",
         "BEGIN:VEVENT",
-        `DTSTART:${startCompact}`,
-        `DTEND:${endCompact}`,
+        `DTSTART:${startUtc}`,
+        `DTEND:${endUtc}`,
         `SUMMARY:${EVENT_CONFIG.title}`,
-        `DESCRIPTION:Acara Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel})`,
+        `DESCRIPTION:${EVENT_CONFIG.timeLabel}`,
         `LOCATION:${EVENT_CONFIG.location}`,
         "END:VEVENT",
         "END:VCALENDAR"
       ].join("\r\n");
 
-      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "perpisahan-kelulusan-07-15.ics";
-      link.click();
-      URL.revokeObjectURL(link.href);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+      a.download = "perpisahan-kelulusan-2027.ics";
+      a.click();
+      URL.revokeObjectURL(a.href);
     });
   }
 }
 
 function initCopyFeature() {
-  const copyBtn = document.getElementById("copyRekeningBtn");
-  const rekeningEl = document.getElementById("rekeningText");
-  const toastEl = document.getElementById("copyToast");
-  if (!copyBtn || !rekeningEl) return;
+  const btn = document.getElementById("copyRekeningBtn");
+  const textEl = document.getElementById("rekeningText");
+  const toast = document.getElementById("copyToast");
+  if (!btn || !textEl) return;
 
-  copyBtn.addEventListener("click", async () => {
-    const textToCopy = rekeningEl.textContent.trim();
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-    } catch (_) {
-      const tempInput = document.createElement("input");
-      tempInput.value = textToCopy;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      document.execCommand("copy");
-      document.body.removeChild(tempInput);
-    }
-
-    if (toastEl) {
-      toastEl.textContent = `✓ Tersalin: ${textToCopy}`;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 2500);
+  btn.addEventListener("click", async () => {
+    const text = textEl.textContent.trim();
+    try { await navigator.clipboard.writeText(text); } catch (_) {}
+    if (toast) {
+      toast.textContent = `✓ Tersalin: ${text}`;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2500);
     }
   });
 }
 
 function initScrollAnimations() {
   const items = document.querySelectorAll(".reveal-on-scroll");
-  if (!items.length) return;
-
   if (!("IntersectionObserver" in window)) {
     items.forEach((el) => el.classList.add("is-visible"));
     return;
   }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.12 }
-  );
-
-  items.forEach((el) => observer.observe(el));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add("is-visible");
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  items.forEach((el) => obs.observe(el));
 }
 
-// --- 5. FORMULIR RSVP & BUKU TAMU (SUPABASE + LOCALSTORAGE) ---
-function getSavedRsvpList() {
-  try {
-    return JSON.parse(localStorage.getItem(RSVP_STORAGE_KEY) || "[]");
-  } catch (_) {
-    return [];
-  }
-}
-
-function renderGuestbook() {
-  const listEl = document.getElementById("guestbookList");
-  if (!listEl) return;
-  const entries = getSavedRsvpList();
-
-  if (!entries.length) {
-    listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 0.88rem;">Belum ada ucapan yang tersimpan. Jadilah yang pertama mengirimkan ucapan!</p>`;
-    return;
-  }
-
-  listEl.innerHTML = entries
-    .map(
-      (item) => `
-      <div class="guestbook-item">
-        <div class="guestbook-meta">
-          <strong>${escapeHtml(item.nama)} <span style="font-weight: 500; color: var(--text-muted);">(${escapeHtml(item.instansi)})</span></strong>
-          <span class="guestbook-badge">${escapeHtml(item.status)} • ${escapeHtml(item.jumlah)} orang</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-main);">${escapeHtml(item.pesan || "Selamat atas kelulusannya, semoga sukses ke depannya!")}</p>
-      </div>`
-    )
-    .join("");
-}
-
+// --- 5. RSVP & BUKU TAMU ---
 function escapeHtml(str) {
   return String(str || "")
     .replace(/&/g, "&amp;")
@@ -355,80 +249,92 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+function getSavedRsvp() {
+  try { return JSON.parse(localStorage.getItem(RSVP_STORAGE_KEY) || "[]"); } catch (_) { return []; }
+}
+
+function renderGuestbook(listOverride = null) {
+  const listEl = document.getElementById("guestbookList");
+  if (!listEl) return;
+  const entries = Array.isArray(listOverride) ? listOverride : getSavedRsvp();
+
+  if (!entries.length) {
+    listEl.innerHTML = `<p class="muted-sm">Belum ada ucapan. Jadilah yang pertama mengirim ucapan!</p>`;
+    return;
+  }
+
+  listEl.innerHTML = entries.map((item) => `
+    <div class="guestbook-item">
+      <div class="guestbook-meta">
+        <strong>${escapeHtml(item.nama)} <span class="muted-sm" style="display:inline;">(${escapeHtml(item.instansi)})</span></strong>
+        <span class="guestbook-badge">${escapeHtml(item.status)} • ${escapeHtml(item.jumlah)} orang</span>
+      </div>
+      <p style="font-size:0.9rem;">${escapeHtml(item.pesan || "Selamat atas kelulusannya!")}</p>
+    </div>
+  `).join("");
+}
+
 function initRsvpForm() {
-  const guest = getGuestFromUrlAndStorage();
-  const headerName = document.getElementById("inviteHeaderName");
-  const headerInstansi = document.getElementById("inviteInstansiName");
-  const namaInput = document.getElementById("rsvpNama");
-  const instansiInput = document.getElementById("rsvpInstansi");
-  const kategoriInput = document.getElementById("rsvpKategori");
+  const guest = getGuestData();
+  const hName = document.getElementById("inviteHeaderName");
+  const hInstansi = document.getElementById("inviteInstansiName");
+  const iNama = document.getElementById("rsvpNama");
+  const iInstansi = document.getElementById("rsvpInstansi");
+  const iKategori = document.getElementById("rsvpKategori");
   const form = document.getElementById("rsvpForm");
   const alertEl = document.getElementById("rsvpAlert");
 
-  if (headerName) headerName.textContent = guest.nama;
-  if (headerInstansi) headerInstansi.textContent = guest.instansi;
-  if (namaInput && guest.nama !== "Tamu Undangan") namaInput.value = guest.nama;
-  if (instansiInput && guest.instansi !== "Keluarga Besar & Alumni") instansiInput.value = guest.instansi;
-  if (kategoriInput) kategoriInput.value = guest.kategori;
+  if (hName) hName.textContent = guest.nama;
+  if (hInstansi) hInstansi.textContent = guest.instansi;
+  if (iNama && guest.nama !== "Tamu Undangan") iNama.value = guest.nama;
+  if (iInstansi && guest.instansi !== "Keluarga Besar & Alumni") iInstansi.value = guest.instansi;
+  if (iKategori) iKategori.value = guest.kategori;
 
   renderGuestbook();
+  fetchRsvpFromSupabase().then((rows) => {
+    if (rows && rows.length) {
+      localStorage.setItem(RSVP_STORAGE_KEY, JSON.stringify(rows));
+      renderGuestbook(rows);
+    }
+  });
 
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const record = {
-      nama: namaInput.value.trim(),
-      instansi: instansiInput.value.trim(),
-      kategori: kategoriInput.value.trim() || "Undangan",
+      nama: iNama.value.trim(),
+      instansi: iInstansi.value.trim(),
+      kategori: iKategori.value.trim() || "Undangan",
       wa: document.getElementById("rsvpWa").value.trim(),
       status: document.getElementById("rsvpStatus").value,
-      jumlah: document.getElementById("rsvpJumlah").value,
-      pesan: document.getElementById("rsvpPesan").value.trim(),
-      waktu: new Date().toISOString()
+      jumlah: Number(document.getElementById("rsvpJumlah").value) || 1,
+      pesan: document.getElementById("rsvpPesan").value.trim()
     };
 
-    // 1. Simpan ke localStorage langsung agar responsif
-    const current = getSavedRsvpList();
+    const current = getSavedRsvp();
     current.unshift(record);
     localStorage.setItem(RSVP_STORAGE_KEY, JSON.stringify(current));
-    renderGuestbook();
+    renderGuestbook(current);
+    await saveRsvpToSupabase(record);
 
     if (alertEl) {
       alertEl.className = "alert alert-success show";
-      alertEl.textContent = "⏳ Menyimpan konfirmasi & ucapan Anda...";
+      alertEl.textContent = "✓ Terima kasih! Konfirmasi & ucapan Anda telah tersimpan.";
     }
 
-    // 2. Kirim ke database Supabase
-    const supaRes = await saveRsvpToSupabase(record);
-    if (alertEl) {
-      alertEl.className = "alert alert-success show";
-      alertEl.textContent = supaRes.ok
-        ? "✓ Terima kasih! Konfirmasi & ucapan tersimpan di database Supabase!"
-        : "✓ Terima kasih! Konfirmasi & ucapan tersimpan di buku tamu.";
-    }
-
-    // 3. Arahkan konfirmasi ke WhatsApp Panitia
-    const waText = `Halo Panitia Perpisahan & Kelulusan (07.00-15.00 WIB), saya *${record.nama}* (${record.instansi}) mengonfirmasi status: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
+    const waText = `Halo Panitia Perpisahan & Kelulusan (${EVENT_CONFIG.timeLabel}), saya *${record.nama}* (${record.instansi}) konfirmasi: *${record.status}* (${record.jumlah} orang). Pesan: ${record.pesan || "-"}`;
     window.open(`https://wa.me/${EVENT_CONFIG.panitiaWa}?text=${encodeURIComponent(waText)}`, "_blank", "noopener,noreferrer");
     form.reset();
   });
 }
 
-// --- 6. PANEL ADMIN & WHATSAPP BLAST ---
+// --- 6. ADMIN PANEL & WA BLAST ---
 function normalizePhone(phone) {
-  if (!phone) return "";
-  let cleaned = String(phone).replace(/\D/g, "");
-  if (cleaned.startsWith("0")) cleaned = "62" + cleaned.slice(1);
-  else if (cleaned.startsWith("8")) cleaned = "62" + cleaned;
-  return cleaned;
-}
-
-function showAdminAlert(msg, type = "success") {
-  const el = document.getElementById("adminAlert");
-  if (!el) return;
-  el.className = `alert alert-${type} show`;
-  el.textContent = msg;
+  let clean = String(phone || "").replace(/\D/g, "");
+  if (clean.startsWith("0")) clean = "62" + clean.slice(1);
+  else if (clean.startsWith("8")) clean = "62" + clean;
+  return clean;
 }
 
 function renderAdminTable(rows) {
@@ -440,54 +346,48 @@ function renderAdminTable(rows) {
   if (totalEl) totalEl.textContent = String(rows.length);
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px;">Belum ada data tamu yang diunggah.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Belum ada data tamu yang diunggah.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = rows
-    .map((row, i) => {
-      const nama = row.nama_tamu || row.nama || `Tamu ${i + 1}`;
-      const instansi = row.instansi || "-";
-      const kategori = row.kategori || "Undangan";
-      const waRaw = row.nomor_wa || row.wa || "";
-      const waClean = normalizePhone(waRaw);
+  tbody.innerHTML = rows.map((row, i) => {
+    const nama = row.nama_tamu || row.nama || `Tamu ${i + 1}`;
+    const instansi = row.instansi || "-";
+    const kategori = row.kategori || "Undangan";
+    const waRaw = row.nomor_wa || row.wa || "";
+    const waClean = normalizePhone(waRaw);
 
-      return `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${escapeHtml(nama)}</td>
-          <td>${escapeHtml(instansi)}</td>
-          <td>${escapeHtml(kategori)}</td>
-          <td>${escapeHtml(waRaw || "-")}</td>
-          <td>
-            <button type="button" class="btn btn-primary" style="width:auto;padding:7px 14px;font-size:0.84rem;"
-              onclick="window.sendWhatsAppBlast('${encodeURIComponent(nama)}','${encodeURIComponent(instansi)}','${encodeURIComponent(kategori)}','${waClean}',this)">
-              Kirim WA
-            </button>
-          </td>
-        </tr>`;
-    })
-    .join("");
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${escapeHtml(nama)}</strong></td>
+        <td>${escapeHtml(instansi)}</td>
+        <td>${escapeHtml(kategori)}</td>
+        <td>${escapeHtml(waRaw || "-")}</td>
+        <td>
+          <button type="button" class="btn btn-primary btn-auto" style="padding:7px 14px;font-size:0.84rem;"
+            onclick="window.sendWhatsAppBlast('${encodeURIComponent(nama)}','${encodeURIComponent(instansi)}','${encodeURIComponent(kategori)}','${waClean}',this)">
+            Kirim WA
+          </button>
+        </td>
+      </tr>`;
+  }).join("");
 }
 
-window.sendWhatsAppBlast = function (encodedNama, encodedInstansi, encodedKategori, waNumber, btnEl) {
-  const nama = decodeURIComponent(encodedNama);
-  const instansi = decodeURIComponent(encodedInstansi);
-  const kategori = decodeURIComponent(encodedKategori);
+window.sendWhatsAppBlast = function (eNama, eInstansi, eKategori, waNumber, btn) {
+  const nama = decodeURIComponent(eNama);
+  const instansi = decodeURIComponent(eInstansi);
+  const kategori = decodeURIComponent(eKategori);
   const baseUrl = window.location.origin + window.location.pathname.replace("admin.html", "index.html");
-  const personalLink = `${baseUrl}?to=${encodeURIComponent(nama)}&instansi=${encodeURIComponent(instansi)}&kategori=${encodeURIComponent(kategori)}`;
+  const link = `${baseUrl}?to=${encodeURIComponent(nama)}&instansi=${encodeURIComponent(instansi)}&kategori=${encodeURIComponent(kategori)}`;
+  const msg = `Yth. *${nama}* (${instansi})\nKami mengundang Anda pada *${EVENT_CONFIG.title}*.\n📅 ${EVENT_CONFIG.dateLabel}\n⏰ ${EVENT_CONFIG.timeLabel}\n📍 ${EVENT_CONFIG.location}\n\nBuka undangan personal Anda:\n${link}`;
 
-  const message = `Yth. *${nama}* (${instansi})\nKami mengundang Anda untuk hadir pada *${EVENT_CONFIG.title}*.\n📅 Tanggal: ${EVENT_CONFIG.dateLabel}\n⏰ Waktu: ${EVENT_CONFIG.timeLabel}\n📍 Lokasi: ${EVENT_CONFIG.location}\n\nBuka undangan personal Anda di:\n${personalLink}`;
+  window.open(waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
 
-  const waUrl = waNumber
-    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`
-    : `https://wa.me/?text=${encodeURIComponent(message)}`;
-
-  window.open(waUrl, "_blank", "noopener,noreferrer");
-
-  if (btnEl) {
-    btnEl.textContent = "✓ Terkirim";
-    btnEl.style.backgroundColor = "#059669";
+  if (btn) {
+    btn.textContent = "✓ Terkirim";
+    btn.style.backgroundColor = "#38BDF8";
+    btn.style.color = "#08101E";
   }
 };
 
@@ -495,53 +395,45 @@ function initAdminPanel() {
   const fileInput = document.getElementById("excelUpload");
   const uploadZone = document.getElementById("uploadZone");
   const templateBtn = document.getElementById("downloadTemplateBtn");
+  const alertEl = document.getElementById("adminAlert");
   if (!fileInput) return;
 
-  function parseFile(file) {
+  const showAlert = (msg, type) => {
+    if (!alertEl) return;
+    alertEl.className = `alert alert-${type} show`;
+    alertEl.textContent = msg;
+  };
+
+  const parseFile = (file) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
+        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
         renderAdminTable(json);
-        showAdminAlert(`Berhasil memuat ${json.length} data tamu dari ${file.name}.`, "success");
+        showAlert(`Berhasil memuat ${json.length} data tamu dari ${file.name}.`, "success");
       } catch (_) {
-        showAdminAlert("Gagal membaca file CSV/Excel. Pastikan struktur kolom sesuai.", "error");
+        showAlert("Gagal membaca file CSV/Excel. Pastikan format kolom benar.", "error");
       }
     };
     reader.readAsArrayBuffer(file);
-  }
+  };
 
   fileInput.addEventListener("change", (e) => parseFile(e.target.files[0]));
 
   if (uploadZone) {
-    ["dragenter", "dragover"].forEach((evt) => {
-      uploadZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        uploadZone.style.borderColor = "#0284C7";
-      });
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
+      uploadZone.addEventListener(evt, (e) => e.preventDefault());
     });
-    ["dragleave", "drop"].forEach((evt) => {
-      uploadZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        uploadZone.style.borderColor = "#0EA5E9";
-      });
-    });
-    uploadZone.addEventListener("drop", (e) => {
-      const droppedFile = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (droppedFile) parseFile(droppedFile);
-    });
+    uploadZone.addEventListener("drop", (e) => parseFile(e.dataTransfer?.files?.[0]));
   }
 
   if (templateBtn) {
     templateBtn.addEventListener("click", () => {
-      const csvSample = "nama_tamu,instansi,kategori,nomor_wa\nRenza Putra,XII RPL,Alumni,081234567890\nDina Maharani,Wali Murid,Keluarga,081398765432";
-      const blob = new Blob([csvSample], { type: "text/csv;charset=utf-8;" });
+      const csv = "nama_tamu,instansi,kategori,nomor_wa\nRenza Putra,XII RPL,Alumni,081234567890\nDina Maharani,Wali Murid,Keluarga,081398765432";
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
       a.download = "template-tamu.csv";
       a.click();
       URL.revokeObjectURL(a.href);
@@ -549,12 +441,11 @@ function initAdminPanel() {
   }
 
   try {
-    const savedGuests = JSON.parse(localStorage.getItem(GUEST_CSV_STORAGE_KEY) || "[]");
-    if (savedGuests.length) renderAdminTable(savedGuests);
+    const saved = JSON.parse(localStorage.getItem(GUEST_CSV_STORAGE_KEY) || "[]");
+    if (saved.length) renderAdminTable(saved);
   } catch (_) {}
 }
 
-// --- 7. EKSEKUSI SAAT HALAMAN SIAP ---
 document.addEventListener("DOMContentLoaded", () => {
   initSupabaseClient();
   initCoverAndMusic();
@@ -564,12 +455,4 @@ document.addEventListener("DOMContentLoaded", () => {
   initCopyFeature();
   initRsvpForm();
   initAdminPanel();
-
-  // Sinkronkan buku tamu dari Supabase jika tersedia
-  fetchRsvpFromSupabase().then((remoteRows) => {
-    if (remoteRows && remoteRows.length) {
-      localStorage.setItem(RSVP_STORAGE_KEY, JSON.stringify(remoteRows));
-      renderGuestbook();
-    }
-  });
 });
