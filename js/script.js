@@ -9,7 +9,7 @@ const EVENT_CONFIG = {
 };
 
 const SUPABASE_CONFIG = {
-  url: "https://eybmvdkkjsqdrlfikhpd.supabase.co",
+  url: "https://eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5Ym12ZGtranNxZHJsZmlraHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU2NTQyMjUsImV4cCI6MjExMTIzMDIyNX0.nK5LZkShzSkcbqa-SyDl_6SHIcaL7O9XzQTK1nrdsoo.supabase.co",
   anonKey: "sb_publishable_01-OZsqmr_FyYSeratUDqw_qg2W3Iix",
   rsvpTable: "rsvp_kelulusan"
 };
