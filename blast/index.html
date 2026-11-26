@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Undangan Perpisahan & Wisuda Kelulusan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -48,13 +48,13 @@
       <p class="tagline">Merayakan Perjalanan, Menyambut Masa Depan • 07.00 – 15.00 WIB</p>
     </header>
 
-    <section class="card reveal-on-scroll greeting-box">
+    <section class="card card-gold reveal-on-scroll greeting-box">
       <p class="muted-sm">Kepada Yth. Bapak/Ibu / Rekan / Alumni:</p>
       <h2 id="inviteHeaderName">Memuat Nama Tamu...</h2>
       <p id="inviteInstansiName" class="muted-sm">Memuat Instansi / Angkatan...</p>
     </section>
 
-    <section class="card reveal-on-scroll text-center">
+    <section class="card card-sapphire reveal-on-scroll text-center">
       <h3 class="section-title justify-center">
         <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/></svg>
         Menuju Acara Perpisahan (Pukul 07.00 WIB)
@@ -71,7 +71,7 @@
           Simpan Kalender (.ics)
         </button>
         <a id="googleCalendarLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-auto">
-          <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v8m-4-4h8M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+          <svg class="ico ico-sapphire" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v8m-4-4h8M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
           Google Calendar
         </a>
       </div>
@@ -79,23 +79,23 @@
 
     <section class="info-grid reveal-on-scroll">
       <div class="info-item">
-        <div class="icon"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
+        <div class="icon-center"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
         <h4>Hari, Tanggal</h4>
         <p id="eventDateText">Jumat, 1 Januari 2027</p>
       </div>
-      <div class="info-item">
-        <div class="icon"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/></svg></div>
+      <div class="info-item info-item-sapphire">
+        <div class="icon-center"><svg class="ico ico-lg ico-sapphire" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/></svg></div>
         <h4>Waktu Acara</h4>
         <p>07.00 – 15.00 WIB</p>
       </div>
       <div class="info-item info-full">
-        <div class="icon"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.686 7-11a7 7 0 10-14 0c0 5.314 7 11 7 11zm0-8a3 3 0 100-6 3 3 0 000 6z"/></svg></div>
+        <div class="icon-center"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.686 7-11a7 7 0 10-14 0c0 5.314 7 11 7 11zm0-8a3 3 0 100-6 3 3 0 000 6z"/></svg></div>
         <h4>Lokasi Acara</h4>
         <p>Aula & Lapangan Utama — Jl. Raya Victor, Setu, Kota Tangerang Selatan</p>
       </div>
     </section>
 
-    <section class="card reveal-on-scroll text-center">
+    <section class="card card-gold reveal-on-scroll text-center">
       <h3 class="section-title justify-center">
         <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.686 7-11a7 7 0 10-14 0c0 5.314 7 11 7 11zm0-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
         Lokasi & Kenang-Kenangan Angkatan
@@ -104,7 +104,7 @@
       <div class="copy-box">
         <div>
           <span class="muted-sm">Rekening Kenang-Kenangan (BCA)</span>
-          <strong id="rekeningText">1234567890 a.n. Panitia Kelulusan</strong>
+          <strong id="rekeningText" class="text-gold">1234567890 a.n. Panitia Kelulusan</strong>
         </div>
         <button type="button" id="copyRekeningBtn" class="btn btn-accent btn-auto">
           <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h11a2 2 0 012 2v11M4 8h11a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2z"/></svg>
@@ -119,12 +119,12 @@
         </iframe>
       </div>
       <a href="https://maps.google.com/?q=SMKN+6+Kota+Tangerang+Selatan" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-map">
-        <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        <svg class="ico ico-sapphire" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
         Buka Petunjuk Arah (Google Maps)
       </a>
     </section>
 
-    <section class="card reveal-on-scroll">
+    <section class="card card-sapphire reveal-on-scroll">
       <h2 class="section-title justify-center">
         <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm4 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-2 7l4.5-5 3.5 4 2.5-3 3.5 4H6z"/></svg>
         Galeri Foto Wisuda & Kelulusan
@@ -142,7 +142,7 @@
       </div>
     </section>
 
-    <section class="card reveal-on-scroll">
+    <section class="card card-gold reveal-on-scroll">
       <h2 class="section-title justify-center">
         <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Konfirmasi Kehadiran (RSVP) & Ucapan
@@ -187,7 +187,7 @@
 
       <div class="guestbook-section">
         <h3 class="guestbook-title">
-          <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10h8m-8 4h5m7-9a2 2 0 012 2v8a2 2 0 01-2 2H6l-4 4V7a2 2 0 012-2h16z"/></svg>
+          <svg class="ico ico-sapphire" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10h8m-8 4h5m7-9a2 2 0 012 2v8a2 2 0 01-2 2H6l-4 4V7a2 2 0 012-2h16z"/></svg>
           Buku Tamu & Ucapan Terbaru
         </h3>
         <div id="guestbookList" class="guestbook-list"></div>

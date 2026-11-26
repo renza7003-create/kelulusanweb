@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin & WA Blast — Perpisahan & Kelulusan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -22,37 +22,39 @@
 
     <div id="adminAlert" class="alert"></div>
 
-    <section class="card">
+    <section class="card card-gold">
       <h2 class="section-title">
         <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>
         1. Unggah Data Tamu (CSV / Excel)
       </h2>
-      <p class="section-desc">
-        Format kolom wajib: <code>nama_tamu</code>, <code>instansi</code>, <code>kategori</code>, dan <code>nomor_wa</code>.
-      </p>
+      <p class="section-desc">Header kolom: <code>nama_tamu</code>, <code>instansi</code>, <code>kategori</code>, dan <code>nomor_wa</code>.</p>
       <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon-wrap">
-          <svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm9 4v5m-2.5-2.5L12 16l2.5-2.5"/></svg>
-        </div>
-        <h3>Klik atau Seret File CSV / Excel di Sini</h3>
-        <p class="muted-sm">Mendukung format .csv, .xlsx, dan .xls</p>
+        <div class="icon-center"><svg class="ico ico-lg ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm9 4v5m-2.5-2.5L12 16l2.5-2.5"/></svg></div>
+        <h3>Klik atau Seret File CSV / Excel</h3>
+        <p class="muted-sm">Mendukung .csv, .xlsx, dan .xls (aktif selama sesi ini)</p>
         <input type="file" id="excelUpload" accept=".csv, .xlsx, .xls">
       </div>
       <div class="action-bar">
-        <button type="button" id="downloadTemplateBtn" class="btn btn-secondary btn-auto">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
-          Unduh Template CSV
-        </button>
+        <div class="btn-group">
+          <button type="button" id="downloadTemplateBtn" class="btn btn-secondary btn-auto">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+            Unduh Template CSV
+          </button>
+          <button type="button" id="clearAllGuestsBtn" class="btn btn-accent btn-auto">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+            Hapus Semua
+          </button>
+        </div>
         <span class="muted-sm">Total Tamu Dimuat: <strong id="totalTamu" class="text-gold">0</strong> orang</span>
       </div>
     </section>
 
-    <section class="card">
+    <section class="card card-sapphire">
       <h2 class="section-title">
-        <svg class="ico ico-gold" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm14 10v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        <svg class="ico ico-sapphire" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm14 10v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         2. Daftar Tamu & Aksi WhatsApp Blast
       </h2>
-      <p class="section-desc">Klik <strong>"Kirim WA"</strong> untuk mengirim pesan otomatis beserta tautan undangan personal.</p>
+      <p class="section-desc">Klik <strong>Kirim WA</strong> untuk blast atau <strong>Hapus</strong> untuk menghapus tamu.</p>
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -62,22 +64,18 @@
               <th>Instansi</th>
               <th>Kategori</th>
               <th>No. WhatsApp</th>
-              <th>Aksi Blast</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody id="adminTableBody">
-            <tr>
-              <td colspan="6" class="empty-row">Belum ada data tamu yang diunggah.</td>
-            </tr>
+            <tr><td colspan="6" class="empty-row">Belum ada data tamu yang diunggah.</td></tr>
           </tbody>
         </table>
       </div>
     </section>
   </div>
 
-  <footer>
-    <p>&copy; 2027 Perpisahan & Wisuda Kelulusan • 07.00 – 15.00 WIB</p>
-  </footer>
+  <footer><p>&copy; 2027 Perpisahan & Wisuda Kelulusan • 07.00 – 15.00 WIB</p></footer>
   <script src="../js/script.js"></script>
 </body>
 </html>
