@@ -31,4 +31,81 @@
   <button type="button" id="musicToggleBtn" class="floating-music-btn" aria-label="Putar atau jeda backsound kelulusan" title="Backsound Kelulusan">
     🎵 <span id="musicStatusText">Backsound: Off</span>
   </button>
+
+  <main id="mainInvitation" class="container invitation-hidden">
+    <header class="hero-header">
+      <div class="badge-event">Perpisahan & Wisuda Kelulusan</div>
+      <h1>Acara Perpisahan & Kelulusan</h1>
+      <p class="tagline">Merayakan Perjalanan, Menyambut Masa Depan • 07.00 – 15.00 WIB</p>
+    </header>
+
+    <div class="card reveal-on-scroll">
+      <div class="greeting-box">
+        <h3>Kepada Yth. Bapak/Ibu / Rekan / Alumni:</h3>
+        <h2 id="inviteHeaderName">Memuat Nama Tamu...</h2>
+        <p id="inviteInstansiName" class="instansi-name">Memuat Instansi / Angkatan...</p>
+      </div>
+    </div>
+
+    <div class="card reveal-on-scroll" style="text-align: center;">
+      <h3 style="font-size: 0.95rem; color: var(--text-main); margin-bottom: 14px;">Menuju Acara Perpisahan (Pukul 07.00 WIB)</h3>
+      <div class="countdown-container" id="countdown">
+        <div class="countdown-box"><span class="number" id="days">00</span><span class="label">Hari</span></div>
+        <div class="countdown-box"><span class="number" id="hours">00</span><span class="label">Jam</span></div>
+        <div class="countdown-box"><span class="number" id="minutes">00</span><span class="label">Menit</span></div>
+        <div class="countdown-box"><span class="number" id="seconds">00</span><span class="label">Detik</span></div>
+      </div>
+      <div class="calendar-actions">
+        <button type="button" id="downloadIcsBtn" class="btn btn-primary" style="width: auto; padding: 10px 18px;">
+          📅 Simpan ke Kalender (.ics)
+        </button>
+        <a id="googleCalendarLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="width: auto; padding: 10px 18px;">
+          🗓️ Tambah ke Google Calendar
+        </a>
+      </div>
+    </div>
+
+    <div class="info-grid reveal-on-scroll">
+      <div class="info-item">
+        <div class="icon">📅</div>
+        <h4>Hari, Tanggal</h4>
+        <p id="eventDateText">Sabtu, 20 Juni 2026</p>
+      </div>
+      <div class="info-item">
+        <div class="icon">⏰</div>
+        <h4>Waktu Acara</h4>
+        <p>07.00 – 15.00 WIB</p>
+      </div>
+      <div class="info-item" style="grid-column: span 1 / -1;">
+        <div class="icon">📍</div>
+        <h4>Lokasi Acara</h4>
+        <p>Aula & Lapangan Utama — Jl. Raya Victor, Setu, Kota Tangerang Selatan</p>
+      </div>
+    </div>
+
+    <div class="card reveal-on-scroll" style="text-align: center;">
+      <h3 style="margin-bottom: 10px; color: var(--text-main); font-size: 1.1rem;">Lokasi & Cinderamata / Kenang-Kenangan</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+        Acara berlangsung pukul <strong>07.00 – 15.00 WIB</strong>. Anda juga dapat menyalin informasi rekening/kenang-kenangan panitia di bawah ini.
+      </p>
+      <div class="copy-box">
+        <div>
+          <span class="copy-label">Rekening Kenang-Kenangan Angkatan (BCA)</span>
+          <strong id="rekeningText" class="copy-value">1234567890 a.n. Panitia Kelulusan</strong>
+        </div>
+        <button type="button" id="copyRekeningBtn" class="btn btn-accent" style="width: auto; padding: 9px 16px;">
+          📋 Salin
+        </button>
+      </div>
+      <div id="copyToast" class="copy-toast" role="status" aria-live="polite"></div>
+      <div class="map-container">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.803875328574!2d106.6855!3d-6.3522!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69eef26b772421%3A0x8e2c7a7238e833b4!2sSMK%20Negeri%206%20Kota%20Tangerang%20Selatan!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+          width="100%" height="260" style="border:0; border-radius: 10px; margin-bottom: 16px;" allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+      <a href="https://maps.google.com/?q=SMKN+6+Kota+Tangerang+Selatan" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="max-width: 320px; margin: 0 auto;">
+        🗺️ Buka Petunjuk Arah (Google Maps)
+      </a>
+    </div>
 </body>
