@@ -6,7 +6,7 @@ const EVENT_CONFIG = {
   location: "Aula & Lapangan Utama, Jl. Raya Victor, Setu, Kota Tangerang Selatan",
   panitiaWa: "6281234567890",
   // Isi dengan URL publik undangan Anda (kosongkan "" jika ingin otomatis sesuai browser)
-  publicUrl: "https://username-anda.github.io/nama-repo/blast/index.html"
+  publicUrl: "https://renza7003-create.github.io/kelulusanweb/blast/index.html"
 };
 
 const SUPABASE_CONFIG = {
